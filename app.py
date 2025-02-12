@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # Configure SQLite database for votes
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///votes.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/votes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -153,13 +153,12 @@ def search_partial():
     results = aggregate_search_results(query, YOUTUBE_API_KEY, GOOGLE_API_KEY, GOOGLE_CSE_ID, max_results=5)
     return render_template("search_partial.html", results=results)
 
-# Endpoint to handle vote updates (upvote/downvote)
 @app.route("/vote", methods=["POST"])
 def vote():
-    # Expecting parameters: url and vote_type ("up" or "down")
+    # Expecting parameters: url and vote (only "up" is accepted)
     url = request.form.get("url")
     vote_type = request.form.get("vote")
-    if not url or vote_type not in ["up", "down"]:
+    if not url or vote_type != "up":
         return jsonify({"error": "Invalid parameters"}), 400
 
     vote_record = Vote.query.filter_by(url=url).first()
@@ -167,13 +166,10 @@ def vote():
         vote_record = Vote(url=url, upvotes=0, downvotes=0)
         db.session.add(vote_record)
 
-    if vote_type == "up":
-        vote_record.upvotes += 1
-    else:
-        vote_record.downvotes += 1
-
+    vote_record.upvotes += 1
     db.session.commit()
-    return jsonify({"url": url, "upvotes": vote_record.upvotes, "downvotes": vote_record.downvotes})
+    return jsonify({"url": url, "upvotes": vote_record.upvotes})
+
 
 if __name__ == "__main__":
     app.run()

@@ -59,18 +59,18 @@
     });
   });
 
-  // Vote buttons for search results.
-  $(document).on("click", ".vote-btn", function(e) {
-    e.preventDefault();
-    var btn = $(this);
-    var voteType = btn.data("vote"); // "up" or "down"
-    var url = btn.data("url");
-    $.post("/vote", { url: url, vote: voteType }, function(data) {
-      // Update the vote counts in the UI.
-      btn.closest(".result-item").find(".upvotes").text(data.upvotes);
-      btn.closest(".result-item").find(".downvotes").text(data.downvotes);
-    });
+// Vote buttons for search results.
+$(document).on("click", ".vote-btn", function(e) {
+  e.preventDefault();
+  var btn = $(this);
+  var voteType = btn.data("vote"); // should be "up"
+  var url = btn.data("url");
+  $.post("/vote", { url: url, vote: voteType }, function(data) {
+    // Update the upvote count in the UI.
+    btn.closest(".result-item").find(".upvotes").text(data.upvotes);
   });
+});
+
 </script>
 </body>
 </html>
