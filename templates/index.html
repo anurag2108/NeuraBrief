@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ML Resources Aggregator</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body { padding-top: 50px; font-family: 'EB Garamond', serif; }
+    .nav-tabs { justify-content: center; }
+    .tab-content { margin-top: 20px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-tabs justify-content-center" id="mainTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="papers-tab" data-toggle="tab" href="#papers" role="tab">Paper Summaries</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="search-tab" data-toggle="tab" href="#search" role="tab">Search</a>
+    </li>
+  </ul>
+  <div class="tab-content" id="mainTabContent">
+    <!-- Papers Tab -->
+    <div class="tab-pane fade show active" id="papers" role="tabpanel">
+      <div id="papers-container">
+        {% include "papers_partial.html" %}
+      </div>
+    </div>
+    <!-- Search Tab -->
+    <div class="tab-pane fade" id="search" role="tabpanel">
+      <div id="search-container">
+        {% include "search_partial.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Papers Pagination: load content via AJAX when pagination links are clicked.
+  $(document).on("click", ".pagination a", function(e) {
+    e.preventDefault();
+    var pageUrl = $(this).attr("href");
+    $.get(pageUrl, function(data) {
+      $("#papers-container").html(data);
+    });
+  });
+
+  // Search: intercept the search form submission via AJAX.
+  $(document).on("submit", "#search-form", function(e) {
+    e.preventDefault();
+    $.post("/search_partial", $(this).serialize(), function(data) {
+      $("#search-container").html(data);
+    });
+  });
+
+  // Vote buttons for search results.
+  $(document).on("click", ".vote-btn", function(e) {
+    e.preventDefault();
+    var btn = $(this);
+    var voteType = btn.data("vote"); // "up" or "down"
+    var url = btn.data("url");
+    $.post("/vote", { url: url, vote: voteType }, function(data) {
+      // Update the vote counts in the UI.
+      btn.closest(".result-item").find(".upvotes").text(data.upvotes);
+      btn.closest(".result-item").find(".downvotes").text(data.downvotes);
+    });
+  });
+</script>
+</body>
+</html>
