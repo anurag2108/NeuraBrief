@@ -176,4 +176,4 @@ def vote():
     return jsonify({"url": url, "upvotes": vote_record.upvotes, "downvotes": vote_record.downvotes})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
